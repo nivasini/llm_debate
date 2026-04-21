@@ -469,18 +469,19 @@ def save_json(p, data):
 def _cache_is_valid(cached, cond):
     """Return True if a cached generation result is trustworthy enough to skip.
 
-    We skip (trust the cache) when:
-      * The cache recorded an explicit error (retrying likely won't help —
-        e.g. OpenAI moderation refusals are deterministic).
-      * Candidates are present and, for choice-based conditions, at least
-        one parsed as a valid A/B choice.
-    We regenerate when candidates are missing entirely, or when every
-    parsed choice is "unknown" (strong signal that the token budget was
-    exhausted by reasoning before the <choice> tag was emitted)."""
+    We skip (trust the cache) only when we have real, usable data:
+      * Candidates list is non-empty AND, for choice-based conditions, at
+        least one parsed side is not "unknown".
+    We regenerate when:
+      * Candidates missing entirely.
+      * Every parsed choice is "unknown" (token-budget exhaustion — gpt-5.4
+        spent all tokens on internal reasoning before the <choice> tag).
+      * An error was recorded previously (some may be deterministic, e.g.
+        moderation refusals; others may be transient — retry and re-log).
+        The cost of retrying a truly-deterministic moderation refusal is
+        ~8 calls per affected question; acceptable for this one-shot fix."""
     if cached is None:
         return False
-    if cached.get("error"):
-        return True  # Don't re-try known deterministic failures
     candidates = cached.get("candidates") or []
     if not candidates:
         return False
