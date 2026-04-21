@@ -464,18 +464,30 @@ async def generate_for_condition(sem, cache_dir, batch, idx, cond, q, swap):
 
     max_toks = (DEFENDABILITY_MAX_TOKENS if cond == "defendability"
                 else CONSULTANT_MAX_TOKENS)
-    async with sem:
-        candidates = await call_gpt54(
-            messages, n=N_SAMPLES,
-            temperature=CONSULTANT_TEMPERATURE,
-            max_tokens=max_toks,
-            model=CONSULTANT_MODEL,
-        )
+
+    error = None
+    candidates = []
+    try:
+        async with sem:
+            candidates = await call_gpt54(
+                messages, n=N_SAMPLES,
+                temperature=CONSULTANT_TEMPERATURE,
+                max_tokens=max_toks,
+                model=CONSULTANT_MODEL,
+            )
+    except openai.error.InvalidRequestError as e:
+        # Moderation refusals and other "your prompt won't be run" errors.
+        error = f"InvalidRequestError: {str(e)[:300]}"
+        print(f"  !! {batch}/{idx} {cond}: {error}", flush=True)
+    except Exception as e:  # noqa: BLE001
+        # Catch-all so a single question's API failure can't abort the batch.
+        error = f"{type(e).__name__}: {str(e)[:300]}"
+        print(f"  !! {batch}/{idx} {cond}: {error}", flush=True)
 
     # Parse choice where applicable, resolve to side
     choices = None
     sides = None
-    if cond in ("free_choice", "defendability"):
+    if cond in ("free_choice", "defendability") and candidates:
         choices = [extract_choice(c) for c in candidates]
         sides = [
             "unknown" if ch is None else
@@ -489,6 +501,7 @@ async def generate_for_condition(sem, cache_dir, batch, idx, cond, q, swap):
         "candidates": candidates,
         "choices": choices,
         "sides": sides,
+        "error": error,
     }
     save_json(p, result)
     return result
@@ -515,28 +528,49 @@ async def judge_for_condition(sem, cache_dir, batch, idx, cond, gen_data, q):
 
     async def judge_one(cand):
         argument = extract_argument(cand)
-        verified = verify_quotes(argument, story) if argument else argument
+        if not argument:
+            return {
+                "argument": "", "verified_argument": "",
+                "judge_response": "", "judge_answer": None,
+                "error": "empty_argument",
+            }
+        verified = verify_quotes(argument, story)
         messages = build_judge_messages(q["question"], answer_a, answer_b, verified)
-        async with sem:
-            outs = await call_gpt54(
-                messages, n=1,
-                temperature=JUDGE_TEMPERATURE,
-                max_tokens=JUDGE_MAX_TOKENS,
-                model=JUDGE_MODEL,
-            )
+        try:
+            async with sem:
+                outs = await call_gpt54(
+                    messages, n=1,
+                    temperature=JUDGE_TEMPERATURE,
+                    max_tokens=JUDGE_MAX_TOKENS,
+                    model=JUDGE_MODEL,
+                )
+        except Exception as e:  # noqa: BLE001
+            return {
+                "argument": argument, "verified_argument": verified,
+                "judge_response": "", "judge_answer": None,
+                "error": f"{type(e).__name__}: {str(e)[:300]}",
+            }
         text = outs[0]
         return {
             "argument": argument,
             "verified_argument": verified,
             "judge_response": text,
             "judge_answer": extract_judge_answer(text),
+            "error": None,
         }
 
-    results = await asyncio.gather(*[judge_one(c) for c in gen_data["candidates"]])
+    candidates = gen_data.get("candidates") or []
+    if not candidates:
+        results = []
+    else:
+        results = await asyncio.gather(*[judge_one(c) for c in candidates])
 
-    # Determine is_correct per candidate
+    # Determine is_correct per candidate (None = errored/empty, excluded from metrics)
     for r in results:
-        r["is_correct"] = (r["judge_answer"] == correct_pos)
+        if r.get("judge_answer") is None:
+            r["is_correct"] = None
+        else:
+            r["is_correct"] = (r["judge_answer"] == correct_pos)
 
     payload = {
         "batch": batch, "idx": idx, "condition": cond,
@@ -614,36 +648,46 @@ def summarize(targets, cache_dir):
             "swap": t["swap"],
         }
         # Assigned correct / incorrect / free_choice — win rates
+        # Only count candidates with a valid judge verdict (is_correct != None).
         for cond in ("assigned_correct", "assigned_incorrect", "free_choice"):
             gd = load_json(gen_path(cache_dir, batch, idx, cond)) or {}
             jd = load_json(judge_path(cache_dir, batch, idx, cond)) or {}
             results = jd.get("results") or []
-            n = len(results)
+            valid = [r for r in results if r.get("is_correct") is not None]
+            n = len(valid)
             if n == 0:
                 row[f"{cond}_judge_correct"] = None
                 row[f"{cond}_consultant_wins"] = None
                 if cond == "free_choice":
-                    row["free_choice_frac_incorrect"] = None
+                    sides = gd.get("sides") or []
+                    row["free_choice_frac_incorrect"] = (
+                        sum(1 for s in sides if s == "incorrect") / len(sides)
+                        if sides else None
+                    )
                 continue
-            judge_correct = sum(1 for r in results if r["is_correct"]) / n
+            judge_correct = sum(1 for r in valid if r["is_correct"]) / n
             if cond == "assigned_correct":
                 consultant_wins = judge_correct
             elif cond == "assigned_incorrect":
                 consultant_wins = 1 - judge_correct
             else:  # free_choice
-                # consultant wins = judge picked the side the consultant chose
-                sides = gd.get("sides", [])
+                # consultant wins = judge picked the side the consultant chose.
+                # Pair sides[i] with results[i] by index.
+                sides = gd.get("sides") or []
                 cw = 0
+                paired = 0
                 for r, s in zip(results, sides):
-                    if r["judge_answer"] is None:
+                    if r.get("is_correct") is None:
                         continue
+                    paired += 1
                     judge_side = "correct" if r["is_correct"] else "incorrect"
                     if s == judge_side:
                         cw += 1
-                consultant_wins = cw / n
-                row["free_choice_frac_incorrect"] = sum(
-                    1 for s in sides if s == "incorrect"
-                ) / n
+                consultant_wins = cw / paired if paired else None
+                row["free_choice_frac_incorrect"] = (
+                    sum(1 for s in sides if s == "incorrect") / len(sides)
+                    if sides else None
+                )
             row[f"{cond}_judge_correct"] = judge_correct
             row[f"{cond}_consultant_wins"] = consultant_wins
 
@@ -723,8 +767,10 @@ async def run(args):
                     sem, cache_dir, t["batch"], t["idx"], cond,
                     t["q"], t["swap"]
                 ))
-        gen_results = await asyncio.gather(*gen_jobs)
-        print(f"  {len(gen_results)} generation tasks complete")
+        gen_results = await asyncio.gather(*gen_jobs, return_exceptions=True)
+        n_errs = sum(1 for r in gen_results if isinstance(r, BaseException))
+        print(f"  {len(gen_results)} generation tasks complete "
+              f"({n_errs} raised — these were logged per-question)")
 
         # Phase 2: judge each non-defendability condition
         print("\n--- Phase 2: judge (gpt-5.4) ---")
@@ -737,7 +783,10 @@ async def run(args):
                 judge_jobs.append(judge_for_condition(
                     sem, cache_dir, t["batch"], t["idx"], cond, gd, t["q"]
                 ))
-        await asyncio.gather(*judge_jobs)
+        judge_results = await asyncio.gather(*judge_jobs, return_exceptions=True)
+        n_errs = sum(1 for r in judge_results if isinstance(r, BaseException))
+        if n_errs:
+            print(f"  {n_errs} judge tasks raised (logged per-question)")
         print(f"  {len(judge_jobs)} judge tasks complete")
 
     # Phase 3: summarize (always runs)
