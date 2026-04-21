@@ -1,0 +1,52 @@
+name: obfuscation-gpt54 summarize
+
+# Collect caches from previous `obfuscation-gpt54 shard` runs (via the
+# shared actions/cache key) and emit details.json + results.csv. Run
+# this after all 10 shards have completed.
+#
+# Does not call any LLM APIs; no OPENAI_API_KEY needed.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache from shard runs
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}
+          restore-keys: |
+            obfuscation-gpt54-cache-
+
+      - name: List restored cache
+        run: |
+          echo "Cache contents:"
+          ls -la exp/obfuscation_gpt54/cache/ || echo "(cache directory missing — did any shards run?)"
+
+      - name: Summarize
+        run: python -m scripts.obfuscation_candidates_gpt54 --summarize-only
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: |
+            exp/obfuscation_gpt54/details.json
+            exp/obfuscation_gpt54/results.csv
+          retention-days: 90

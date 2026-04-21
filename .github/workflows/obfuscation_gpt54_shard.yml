@@ -1,0 +1,91 @@
+name: obfuscation-gpt54 shard
+
+# Run ONE obfuscation-candidate question × all 4 conditions on gpt-5.4.
+# Trigger manually, pick a question from the dropdown, wait for it to
+# finish, then trigger the next one. State is persisted between runs via
+# actions/cache keyed on a shared prefix, so each shard only does work
+# it hasn't already cached.
+#
+# After all 10 shards have run, trigger the `obfuscation-gpt54 summarize`
+# workflow to produce details.json + results.csv.
+#
+# Required repo secret: OPENAI_API_KEY
+
+on:
+  workflow_dispatch:
+    inputs:
+      question:
+        description: "Which question to run"
+        type: choice
+        required: true
+        options:
+          - v3_78    # Accidental Death
+          - v3_42    # Lex
+          - v3_63    # Mars Confidential
+          - v3_99    # To Each His Star
+          - v2_115   # Monkey On His Back
+          - v3_19    # The Repairman
+          - v3_111   # The Talkative Tree
+          - v3_155   # The Haunted Fountain
+          - v3_192   # The Blue Tower
+          - v2_8     # The Man Who Was Six
+      conditions:
+        description: "Comma-separated conditions"
+        default: "assigned_correct,assigned_incorrect,free_choice,defendability"
+        required: false
+      concurrency:
+        description: "In-shard API concurrency"
+        default: "6"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  shard:
+    name: ${{ inputs.question }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache from previous runs
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}
+          restore-keys: |
+            obfuscation-gpt54-cache-
+
+      - name: Run shard
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --only "${{ inputs.question }}" \
+            --conditions "${{ inputs.conditions }}" \
+            --concurrency "${{ inputs.concurrency }}"
+
+      - name: Save cache (new snapshot for next run)
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}
+
+      - name: Upload cache as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-${{ inputs.question }}-${{ github.run_id }}
+          path: exp/obfuscation_gpt54/cache/
+          retention-days: 30
+          if-no-files-found: warn
