@@ -1,0 +1,210 @@
+name: obfuscation-gpt54 sequential
+
+# Runs the four consultancy conditions on gpt-5.4 sequentially, one
+# condition per job, across all 10 obfuscation-candidate questions.
+# Each job runs after the previous regardless of whether the previous
+# succeeded (if: always()), so a single failure doesn't abort the
+# chain. Cache is shared between jobs via actions/cache keyed on the
+# current run_id.
+#
+# Required repo secret: OPENAI_API_KEY
+#
+# Trigger manually from Actions → obfuscation-gpt54 sequential → Run
+# workflow. The `summarize` job at the end emits details.json +
+# results.csv as a downloadable artifact.
+
+on:
+  workflow_dispatch:
+    inputs:
+      concurrency:
+        description: "In-job API concurrency"
+        default: "6"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  assigned_correct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}-assigned_correct
+          restore-keys: |
+            obfuscation-gpt54-cache-${{ github.run_id }}-
+            obfuscation-gpt54-cache-
+
+      - name: Run assigned_correct
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --conditions assigned_correct \
+            --concurrency "${{ inputs.concurrency }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}-assigned_correct
+
+  assigned_incorrect:
+    needs: assigned_correct
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}-assigned_incorrect
+          restore-keys: |
+            obfuscation-gpt54-cache-${{ github.run_id }}-
+            obfuscation-gpt54-cache-
+
+      - name: Run assigned_incorrect
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --conditions assigned_incorrect \
+            --concurrency "${{ inputs.concurrency }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}-assigned_incorrect
+
+  free_choice:
+    needs: assigned_incorrect
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}-free_choice
+          restore-keys: |
+            obfuscation-gpt54-cache-${{ github.run_id }}-
+            obfuscation-gpt54-cache-
+
+      - name: Run free_choice
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --conditions free_choice \
+            --concurrency "${{ inputs.concurrency }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}-free_choice
+
+  defendability:
+    needs: free_choice
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}-defendability
+          restore-keys: |
+            obfuscation-gpt54-cache-${{ github.run_id }}-
+            obfuscation-gpt54-cache-
+
+      - name: Run defendability
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --conditions defendability \
+            --concurrency "${{ inputs.concurrency }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}-defendability
+
+  summarize:
+    needs: defendability
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54/cache
+          key: obfuscation-gpt54-cache-${{ github.run_id }}-summarize
+          restore-keys: |
+            obfuscation-gpt54-cache-${{ github.run_id }}-
+            obfuscation-gpt54-cache-
+
+      - name: List restored cache
+        run: |
+          echo "Cache contents:"
+          ls -la exp/obfuscation_gpt54/cache/ || echo "(cache missing)"
+
+      - name: Summarize
+        run: python -m scripts.obfuscation_candidates_gpt54 --summarize-only
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: |
+            exp/obfuscation_gpt54/details.json
+            exp/obfuscation_gpt54/results.csv
+          retention-days: 90
