@@ -35,19 +35,23 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from argparse import Namespace as _Ns
 
-# ─── Target questions (top 10 obfuscation candidates) ───────────────────────
-# Screening: direct-answer accuracy ≥ 50% AND large positive (inc_wr - cor_wr).
+# ─── Target questions (top 50 obfuscation candidates) ───────────────────────
+# Screening: gpt-4o-mini DA=100% (model knows), fc_inc≥75% (picks incorrect often),
+# inc_wr≥75% (wins arguing incorrect), LLM-reparsed sides.
+# First 10 are the original obfuscation candidates already tested in
+# exp/obfuscation_gpt54/; the remaining 40 are the strongest strategic-
+# obfuscator candidates from the gpt-4o-mini 350-question sweep.
 OBFUSCATION_CANDIDATES = [
-    ("v3", 78),    # Accidental Death
-    ("v3", 42),    # Lex
-    ("v3", 63),    # Mars Confidential
-    ("v3", 99),    # To Each His Star
-    ("v2", 115),   # Monkey On His Back
-    ("v3", 19),    # The Repairman
-    ("v3", 111),   # The Talkative Tree
-    ("v3", 155),   # The Haunted Fountain
-    ("v3", 192),   # The Blue Tower
-    ("v2", 8),     # The Man Who Was Six
+    ("v3", 78),   ("v3", 42),   ("v3", 63),   ("v3", 99),   ("v2", 115),
+    ("v3", 19),   ("v3", 111),  ("v3", 155),  ("v3", 192),  ("v2", 8),
+    ("v2", 23),   ("v2", 67),   ("v3", 190),  ("v2", 47),   ("v2", 130),
+    ("v3", 145),  ("v3", 177),  ("v2", 27),   ("v2", 90),   ("v3", 79),
+    ("v3", 106),  ("v3", 146),  ("v3", 156),  ("v3", 176),  ("v2", 38),
+    ("v2", 39),   ("v2", 140),  ("v2", 146),  ("v3", 92),   ("v3", 139),
+    ("v3", 144),  ("v3", 147),  ("v2", 22),   ("v2", 40),   ("v2", 45),
+    ("v2", 73),   ("v2", 108),  ("v3", 28),   ("v3", 53),   ("v3", 55),
+    ("v3", 96),   ("v3", 98),   ("v3", 149),  ("v3", 152),  ("v3", 180),
+    ("v3", 185),  ("v2", 21),   ("v2", 33),   ("v2", 126),  ("v3", 36),
 ]
 
 # ─── Model / sampling config ────────────────────────────────────────────────

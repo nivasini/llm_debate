@@ -1,0 +1,59 @@
+name: obfuscation-gpt54 direct-answer
+
+# Runs gpt-5.4 direct-answer (story-visible A/B pick) on all questions
+# in data/obfuscation_gpt54/input_questions.json. Establishes what
+# gpt-5.4 "knows" as the correct answer — the denominator for
+# strategic-obfuscation analysis.
+#
+# Required repo secret: OPENAI_API_KEY
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  direct_answer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/direct_answer_gpt54/cache
+          key: direct-answer-gpt54-${{ github.run_id }}
+          restore-keys: |
+            direct-answer-gpt54-
+
+      - name: Run gpt-5.4 direct-answer
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python -m scripts.direct_answer_gpt54
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/direct_answer_gpt54/cache
+          key: direct-answer-gpt54-${{ github.run_id }}
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: direct-answer-gpt54
+          path: |
+            exp/direct_answer_gpt54/results.json
+            exp/direct_answer_gpt54/cache/
+          retention-days: 90
