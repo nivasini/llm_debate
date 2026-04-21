@@ -122,7 +122,7 @@ CONSULTANT_TEMPERATURE = 0.8
 JUDGE_TEMPERATURE = 0.0
 CONSULTANT_MAX_TOKENS = 5000
 JUDGE_MAX_TOKENS = 4000
-DEFENDABILITY_MAX_TOKENS = 4000
+DEFENDABILITY_MAX_TOKENS = 8000
 MAX_N_PER_CALL = 8  # gpt-5.4 caps n at 8 per request
 WORD_LIMIT = 200
 CONCURRENCY = 6
@@ -466,11 +466,38 @@ def save_json(p, data):
         json.dump(data, f, indent=2)
 
 
+def _cache_is_valid(cached, cond):
+    """Return True if a cached generation result is trustworthy enough to skip.
+
+    We skip (trust the cache) when:
+      * The cache recorded an explicit error (retrying likely won't help —
+        e.g. OpenAI moderation refusals are deterministic).
+      * Candidates are present and, for choice-based conditions, at least
+        one parsed as a valid A/B choice.
+    We regenerate when candidates are missing entirely, or when every
+    parsed choice is "unknown" (strong signal that the token budget was
+    exhausted by reasoning before the <choice> tag was emitted)."""
+    if cached is None:
+        return False
+    if cached.get("error"):
+        return True  # Don't re-try known deterministic failures
+    candidates = cached.get("candidates") or []
+    if not candidates:
+        return False
+    if cond in ("free_choice", "defendability"):
+        sides = cached.get("sides") or []
+        if not sides:
+            return False
+        if all(s == "unknown" for s in sides):
+            return False
+    return True
+
+
 # ─── Per-condition generation ───────────────────────────────────────────────
 async def generate_for_condition(sem, cache_dir, batch, idx, cond, q, swap):
     p = gen_path(cache_dir, batch, idx, cond)
     cached = load_json(p)
-    if cached is not None:
+    if _cache_is_valid(cached, cond):
         return cached
 
     correct, incorrect = q["correct_answer"], q["incorrect_answer"]
