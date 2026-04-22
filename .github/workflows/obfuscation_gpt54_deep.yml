@@ -1,0 +1,235 @@
+name: obfuscation-gpt54 deep
+
+# High-sample (n=32) re-run of the 4 consultancy conditions on the 9
+# deep candidates (5 Type A + 4 Type B) selected in notebook section 5.
+# Candidate list committed at data/obfuscation_gpt54/deep_candidates.json.
+# Mirrors obfuscation_gpt54_sequential.yml but:
+#   - --only @data/obfuscation_gpt54/deep_candidates.json
+#   - --samples 32
+#   - --output-dir exp/obfuscation_gpt54_deep  (separate cache so the
+#     primary n=8 data stays untouched as reference)
+#   - actions/cache key prefix is distinct.
+#
+# Trigger manually. Required secret: OPENAI_API_KEY or PERSONAL_OPEN_AI_KEY.
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_key:
+        description: "Which repo secret to use as OPENAI_API_KEY"
+        type: choice
+        required: true
+        default: "OPENAI_API_KEY"
+        options:
+          - OPENAI_API_KEY
+          - PERSONAL_OPEN_AI_KEY
+      samples:
+        description: "Samples per condition per question"
+        default: "32"
+        required: false
+      concurrency:
+        description: "In-job API concurrency"
+        default: "6"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  assigned_correct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54_deep/cache
+          key: obfuscation-gpt54-deep-${{ github.run_id }}-assigned_correct
+          restore-keys: |
+            obfuscation-gpt54-deep-${{ github.run_id }}-
+            obfuscation-gpt54-deep-
+
+      - name: Run assigned_correct
+        env:
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --only "@data/obfuscation_gpt54/deep_candidates.json" \
+            --conditions assigned_correct \
+            --samples "${{ inputs.samples }}" \
+            --output-dir exp/obfuscation_gpt54_deep \
+            --concurrency "${{ inputs.concurrency }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/obfuscation_gpt54_deep/cache
+          key: obfuscation-gpt54-deep-${{ github.run_id }}-assigned_correct
+
+  assigned_incorrect:
+    needs: assigned_correct
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54_deep/cache
+          key: obfuscation-gpt54-deep-${{ github.run_id }}-assigned_incorrect
+          restore-keys: |
+            obfuscation-gpt54-deep-${{ github.run_id }}-
+            obfuscation-gpt54-deep-
+
+      - name: Run assigned_incorrect
+        env:
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --only "@data/obfuscation_gpt54/deep_candidates.json" \
+            --conditions assigned_incorrect \
+            --samples "${{ inputs.samples }}" \
+            --output-dir exp/obfuscation_gpt54_deep \
+            --concurrency "${{ inputs.concurrency }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/obfuscation_gpt54_deep/cache
+          key: obfuscation-gpt54-deep-${{ github.run_id }}-assigned_incorrect
+
+  free_choice:
+    needs: assigned_incorrect
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54_deep/cache
+          key: obfuscation-gpt54-deep-${{ github.run_id }}-free_choice
+          restore-keys: |
+            obfuscation-gpt54-deep-${{ github.run_id }}-
+            obfuscation-gpt54-deep-
+
+      - name: Run free_choice
+        env:
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --only "@data/obfuscation_gpt54/deep_candidates.json" \
+            --conditions free_choice \
+            --samples "${{ inputs.samples }}" \
+            --output-dir exp/obfuscation_gpt54_deep \
+            --concurrency "${{ inputs.concurrency }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/obfuscation_gpt54_deep/cache
+          key: obfuscation-gpt54-deep-${{ github.run_id }}-free_choice
+
+  defendability:
+    needs: free_choice
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54_deep/cache
+          key: obfuscation-gpt54-deep-${{ github.run_id }}-defendability
+          restore-keys: |
+            obfuscation-gpt54-deep-${{ github.run_id }}-
+            obfuscation-gpt54-deep-
+
+      - name: Run defendability
+        env:
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --only "@data/obfuscation_gpt54/deep_candidates.json" \
+            --conditions defendability \
+            --samples "${{ inputs.samples }}" \
+            --output-dir exp/obfuscation_gpt54_deep \
+            --concurrency "${{ inputs.concurrency }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/obfuscation_gpt54_deep/cache
+          key: obfuscation-gpt54-deep-${{ github.run_id }}-defendability
+
+  summarize:
+    needs: defendability
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/obfuscation_gpt54_deep/cache
+          key: obfuscation-gpt54-deep-${{ github.run_id }}-summarize
+          restore-keys: |
+            obfuscation-gpt54-deep-${{ github.run_id }}-
+            obfuscation-gpt54-deep-
+
+      - name: List cache
+        run: ls -la exp/obfuscation_gpt54_deep/cache/ || echo "(cache missing)"
+
+      - name: Summarize
+        run: |
+          python -m scripts.obfuscation_candidates_gpt54 \
+            --only "@data/obfuscation_gpt54/deep_candidates.json" \
+            --output-dir exp/obfuscation_gpt54_deep \
+            --summarize-only
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: deep-results
+          path: |
+            exp/obfuscation_gpt54_deep/details.json
+            exp/obfuscation_gpt54_deep/results.csv
+          retention-days: 90

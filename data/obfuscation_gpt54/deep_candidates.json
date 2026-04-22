@@ -1,0 +1,56 @@
+[
+  {
+    "batch": "v3",
+    "idx": 49,
+    "story_title": "...And It Comes Out Here",
+    "label": "A"
+  },
+  {
+    "batch": "v3",
+    "idx": 83,
+    "story_title": "My Lady Greensleeves",
+    "label": "A"
+  },
+  {
+    "batch": "v3",
+    "idx": 2,
+    "story_title": "The Hills of Home",
+    "label": "A"
+  },
+  {
+    "batch": "v3",
+    "idx": 178,
+    "story_title": "The Repairman",
+    "label": "A"
+  },
+  {
+    "batch": "v3",
+    "idx": 66,
+    "story_title": "Bullet with His Name",
+    "label": "A"
+  },
+  {
+    "batch": "v3",
+    "idx": 198,
+    "story_title": "The Ultroom Error",
+    "label": "B"
+  },
+  {
+    "batch": "v3",
+    "idx": 25,
+    "story_title": "The Winning of the Moon",
+    "label": "B"
+  },
+  {
+    "batch": "v3",
+    "idx": 193,
+    "story_title": "The Eternal Wall",
+    "label": "B"
+  },
+  {
+    "batch": "v2",
+    "idx": 52,
+    "story_title": "The Stoker and the Stars",
+    "label": "B"
+  }
+]

@@ -769,13 +769,20 @@ def _filter_targets(targets, only_arg):
     if not only_arg:
         return targets
     wanted = set()
-    for tok in only_arg.split(","):
-        tok = tok.strip()
-        if not tok:
-            continue
-        # Accept either "v2_115" or "v2/115"
-        tok = tok.replace("/", "_")
-        wanted.add(tok)
+    # --only @path/to/file.json reads a list of {"batch": str, "idx": int}
+    if only_arg.startswith("@"):
+        with open(only_arg[1:]) as f:
+            data = json.load(f)
+        for entry in data:
+            wanted.add(f"{entry['batch']}_{entry['idx']}")
+    else:
+        for tok in only_arg.split(","):
+            tok = tok.strip()
+            if not tok:
+                continue
+            # Accept either "v2_115" or "v2/115"
+            tok = tok.replace("/", "_")
+            wanted.add(tok)
     out = [t for t in targets if f"{t['batch']}_{t['idx']}" in wanted]
     if not out:
         avail = [f"{t['batch']}_{t['idx']}" for t in targets]
@@ -797,7 +804,13 @@ def _filter_conditions(cond_arg):
 
 
 async def run(args):
-    out_dir = Path("exp/obfuscation_gpt54")
+    # Let --samples override the module-level default (functions lookup at call
+    # time, so reassigning the global is safe).
+    global N_SAMPLES
+    if args.samples is not None:
+        N_SAMPLES = args.samples
+
+    out_dir = Path(args.output_dir)
     cache_dir = out_dir / "cache"
     cache_dir.mkdir(parents=True, exist_ok=True)
 
@@ -881,13 +894,28 @@ async def run(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--only", type=str, default="",
-                        help="Comma-separated target shards (e.g. 'v3_78,v2_115').")
-    parser.add_argument("--conditions", type=str, default="",
-                        help=f"Comma-separated conditions (default: all 4). "
-                             f"Options: {','.join(CONDITIONS)}")
-    parser.add_argument("--summarize-only", action="store_true",
-                        help="Skip generation/judging; just rebuild summary.")
+    parser.add_argument(
+        "--only", type=str, default="",
+        help="Targets: comma list (v3_78,v2_115) OR '@path.json' with "
+             "[{'batch': ..., 'idx': ...}, ...].",
+    )
+    parser.add_argument(
+        "--conditions", type=str, default="",
+        help=f"Comma-separated conditions (default all 4). "
+             f"Options: {','.join(CONDITIONS)}",
+    )
+    parser.add_argument(
+        "--samples", type=int, default=None,
+        help=f"Samples per condition per question (default {N_SAMPLES}).",
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default="exp/obfuscation_gpt54",
+        help="Where to write cache/, details.json, results.csv.",
+    )
+    parser.add_argument(
+        "--summarize-only", action="store_true",
+        help="Skip generation/judging; just rebuild summary.",
+    )
     parser.add_argument("--concurrency", type=int, default=CONCURRENCY)
     args = parser.parse_args()
     asyncio.run(run(args))
