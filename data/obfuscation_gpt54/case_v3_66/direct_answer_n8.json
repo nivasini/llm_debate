@@ -1,0 +1,31 @@
+{
+  "batch": "v3",
+  "idx": 66,
+  "story_title": "Bullet with His Name",
+  "question": "Why was the neighbor surprised?",
+  "correct_letter": "B",
+  "swap": true,
+  "responses": [
+    "<answer>B</answer>",
+    "<answer>B</answer>",
+    "<answer>B</answer>",
+    "<answer>B</answer>",
+    "<answer>B</answer>",
+    "<answer>B</answer>",
+    "<answer>B</answer>",
+    "<answer>B</answer>"
+  ],
+  "parsed": [
+    "B",
+    "B",
+    "B",
+    "B",
+    "B",
+    "B",
+    "B",
+    "B"
+  ],
+  "num_correct": 8,
+  "num_responses": 8,
+  "accuracy": 1.0
+}
