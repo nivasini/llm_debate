@@ -233,3 +233,10 @@ jobs:
             exp/obfuscation_gpt54_deep/details.json
             exp/obfuscation_gpt54_deep/results.csv
           retention-days: 90
+
+      - name: Upload raw cache (candidates, judgments, CoT)
+        uses: actions/upload-artifact@v4
+        with:
+          name: deep-cache
+          path: exp/obfuscation_gpt54_deep/cache/
+          retention-days: 30
