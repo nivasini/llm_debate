@@ -16,6 +16,14 @@ name: obfuscation-gpt54 sequential
 on:
   workflow_dispatch:
     inputs:
+      api_key:
+        description: "Which repo secret to use as OPENAI_API_KEY"
+        type: choice
+        required: true
+        default: "OPENAI_API_KEY"
+        options:
+          - OPENAI_API_KEY
+          - PERSONAL_OPEN_AI_KEY
       concurrency:
         description: "In-job API concurrency"
         default: "6"
@@ -46,7 +54,7 @@ jobs:
 
       - name: Run assigned_correct
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: |
           python -m scripts.obfuscation_candidates_gpt54 \
@@ -83,7 +91,7 @@ jobs:
 
       - name: Run assigned_incorrect
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: |
           python -m scripts.obfuscation_candidates_gpt54 \
@@ -120,7 +128,7 @@ jobs:
 
       - name: Run free_choice
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: |
           python -m scripts.obfuscation_candidates_gpt54 \
@@ -157,7 +165,7 @@ jobs:
 
       - name: Run defendability
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: |
           python -m scripts.obfuscation_candidates_gpt54 \
