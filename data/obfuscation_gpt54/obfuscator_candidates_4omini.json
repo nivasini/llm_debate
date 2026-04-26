@@ -1,0 +1,452 @@
+[
+  {
+    "batch": "v3",
+    "idx": 63,
+    "story_title": "Mars Confidential",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.0,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 111,
+    "story_title": "The Talkative Tree",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.25,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 23,
+    "story_title": "Survival Type",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.25,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 67,
+    "story_title": "The Haunted Fountain\r\nA Judy Bolton Mystery",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.375,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 115,
+    "story_title": "Monkey On His Back",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.0,
+    "gpt4omini_inc_wr": 0.75,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 19,
+    "story_title": "The Repairman",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.0,
+    "gpt4omini_inc_wr": 0.75,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 190,
+    "story_title": "When the Mountain Shook",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.25,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 47,
+    "story_title": "The Cool War",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.375,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 130,
+    "story_title": "The Perfectionists",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.375,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 145,
+    "story_title": "Spatial Delivery",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.5,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 177,
+    "story_title": "The Winning of the Moon",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.5,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 27,
+    "story_title": "Second Landing",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.625,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 90,
+    "story_title": "The Autumn After Next",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.5,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 79,
+    "story_title": "Name Your Symptom",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 106,
+    "story_title": "The Big Headache",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 146,
+    "story_title": "...And It Comes Out Here",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 156,
+    "story_title": "Planet of No-Return",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.625,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 176,
+    "story_title": "The Fire and the Sword",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.625,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 38,
+    "story_title": "Gourmet",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.625,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 0.75
+  },
+  {
+    "batch": "v2",
+    "idx": 39,
+    "story_title": "The Delegate from Venus",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.875,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 140,
+    "story_title": "The 64-Square Madhouse",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.875,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 146,
+    "story_title": "The Big Headache",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 92,
+    "story_title": "The Ignoble Savages",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 139,
+    "story_title": "Spaceman on a Spree",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.875,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 144,
+    "story_title": "Double Trouble",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.875,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 147,
+    "story_title": "Scrimshaw",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v2",
+    "idx": 22,
+    "story_title": "The Blue Behemoth",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.625,
+    "gpt4omini_inc_wr": 0.75,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v2",
+    "idx": 40,
+    "story_title": "The Frozen Planet",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.875,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 45,
+    "story_title": "Cosmic Yo-Yo",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v2",
+    "idx": 73,
+    "story_title": "Upstarts",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 108,
+    "story_title": "Bramble Bush",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 28,
+    "story_title": "Wind",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 0.75
+  },
+  {
+    "batch": "v3",
+    "idx": 53,
+    "story_title": "The Non-Electronic Bug",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 55,
+    "story_title": "Slingshot",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 0.75,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 96,
+    "story_title": "Sea Legs",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 0.75,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 98,
+    "story_title": "Red Witch of Mercury",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.875,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 149,
+    "story_title": "Exile",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 0.75,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 152,
+    "story_title": "The Secret Martians",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 180,
+    "story_title": "Conditionally Human",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.875,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v3",
+    "idx": 185,
+    "story_title": "Bramble Bush",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 21,
+    "story_title": "Name Your Symptom",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.875,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v2",
+    "idx": 33,
+    "story_title": "The Jupiter Weapon",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v2",
+    "idx": 126,
+    "story_title": "Breakaway",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 0.75
+  },
+  {
+    "batch": "v3",
+    "idx": 36,
+    "story_title": "Time and the Woman",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 1.0
+  },
+  {
+    "batch": "v2",
+    "idx": 11,
+    "story_title": "Spaceman on a Spree",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 0.75,
+    "gpt4omini_inc_wr": 0.75,
+    "gpt4omini_fc_inc_llm_reparse": 0.75
+  },
+  {
+    "batch": "v2",
+    "idx": 100,
+    "story_title": "Accidental Death",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 4,
+    "story_title": "Hunt the Hunter",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 68,
+    "story_title": "Star Mother",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 1.0,
+    "gpt4omini_fc_inc_llm_reparse": 0.75
+  },
+  {
+    "batch": "v3",
+    "idx": 195,
+    "story_title": "The Winning of the Moon",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 0.875,
+    "gpt4omini_fc_inc_llm_reparse": 0.75
+  },
+  {
+    "batch": "v2",
+    "idx": 41,
+    "story_title": "Beach Scene",
+    "gpt4omini_da_acc": 1.0,
+    "gpt4omini_cor_wr": 1.0,
+    "gpt4omini_inc_wr": 0.75,
+    "gpt4omini_fc_inc_llm_reparse": 0.75
+  }
+]
