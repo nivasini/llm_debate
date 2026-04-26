@@ -14,6 +14,7 @@ Output:
   exp/quote_budget_4omini/results.json                       (aggregated)
 """
 
+import argparse
 import asyncio
 import json
 import os
@@ -39,7 +40,7 @@ TEMPERATURE = 0.8
 MAX_TOKENS = 1500
 MAX_N_PER_CALL = 8
 CONCURRENCY = 12
-QUOTE_BUDGETS = [1, 8]
+QUOTE_BUDGETS_DEFAULT = [0, 1, 2, 4, 8]
 
 OUT_DIR = Path("exp/quote_budget_4omini")
 CACHE_DIR = OUT_DIR / "cache"
@@ -128,7 +129,11 @@ async def run_question(sem, batch, idx, q, swap, n_quotes):
     cache_path = CACHE_DIR / f"{batch}_{idx}_q{n_quotes}.json"
     if cache_path.exists():
         with open(cache_path) as f:
-            return json.load(f)
+            cached = json.load(f)
+        # Skip the cache if the prior run errored with no usable output
+        # (empty candidates) — retrying may now succeed.
+        if cached.get("candidates"):
+            return cached
 
     correct = q["correct_answer"]
     incorrect = q["incorrect_answer"]
@@ -195,16 +200,29 @@ def load_question_map():
 
 
 async def main():
-    openai.api_key = os.environ["OPENAI_API_KEY"]
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--quote-budgets", type=str, default="",
+        help=f"Comma-separated quote budgets to run (e.g. '0,2,4'). "
+             f"Default: all of {QUOTE_BUDGETS_DEFAULT}.",
+    )
+    args = parser.parse_args()
 
+    if args.quote_budgets.strip():
+        run_budgets = [int(x.strip()) for x in args.quote_budgets.split(",")
+                       if x.strip()]
+    else:
+        run_budgets = list(QUOTE_BUDGETS_DEFAULT)
+
+    openai.api_key = os.environ["OPENAI_API_KEY"]
     qmap = load_question_map()
     cand_keys = get_obfuscator_candidates()
     print(f"Strict obfuscator candidates: {len(cand_keys)}")
-    print(f"Quote budgets: {QUOTE_BUDGETS}")
+    print(f"Running budgets: {run_budgets}  (will summarize over all cached budgets)")
 
     sem = asyncio.Semaphore(CONCURRENCY)
     jobs = []
-    for n_quotes in QUOTE_BUDGETS:
+    for n_quotes in run_budgets:
         for batch, idx in cand_keys:
             q = qmap[(batch, idx)]
             swap = q["swap"]
@@ -216,10 +234,15 @@ async def main():
         await asyncio.gather(*jobs[i:i+BATCH])
         print(f"  done {min(i+BATCH, len(jobs))}/{len(jobs)}")
 
-    # Aggregate
+    # Aggregate over ALL budgets present in cache (not just this run's budgets)
     print("\n--- Aggregating ---")
+    cached_budgets = sorted({
+        int(re.search(r'_q(\d+)\.json$', p.name).group(1))
+        for p in CACHE_DIR.glob('*_q*.json')
+    })
+    print(f"Budgets present in cache: {cached_budgets}")
     rows = []
-    for n_quotes in QUOTE_BUDGETS:
+    for n_quotes in cached_budgets:
         per_q_fc_inc = []
         valid = 0
         for batch, idx in cand_keys:

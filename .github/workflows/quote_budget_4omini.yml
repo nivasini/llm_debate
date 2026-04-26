@@ -10,6 +10,19 @@ name: quote-budget gpt-4o-mini
 on:
   workflow_dispatch:
     inputs:
+      quote_budgets:
+        description: "Quote budgets to run (comma-separated; e.g. '0,2,4'). Already-cached budgets are skipped; summarize covers all cached budgets."
+        type: choice
+        required: true
+        default: "0,2,4"
+        options:
+          - "0"
+          - "1"
+          - "2"
+          - "4"
+          - "8"
+          - "0,2,4"
+          - "0,1,2,4,8"
       api_key:
         description: "Which repo secret to use as OPENAI_API_KEY"
         type: choice
@@ -45,7 +58,8 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
           PYTHONUNBUFFERED: "1"
-        run: python -m scripts.quote_budget_4omini
+        run: |
+          python -m scripts.quote_budget_4omini --quote-budgets "${{ inputs.quote_budgets }}"
 
       - name: Save cache
         if: always()
