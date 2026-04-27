@@ -185,18 +185,24 @@ CANDIDATES_PATH = Path("data/obfuscation_gpt54/obfuscator_candidates_4omini.json
 INPUT_QUESTIONS_PATH = Path("data/obfuscation_gpt54/input_questions.json")
 
 
-def get_obfuscator_candidates():
-    """Return list of (batch, idx) for the 50 strict obfuscator candidates."""
-    with open(CANDIDATES_PATH) as f:
-        cands = json.load(f)
-    return [(c["batch"], c["idx"]) for c in cands]
-
-
 def load_question_map():
     """Map (batch, idx) -> question dict, loaded from the committed snapshot."""
     with open(INPUT_QUESTIONS_PATH) as f:
         rows = json.load(f)
     return {(r["batch"], r["idx"]): r for r in rows}
+
+
+def get_candidate_set(name):
+    """Return list of (batch, idx) for the requested candidate set."""
+    if name == "obfuscators":
+        with open(CANDIDATES_PATH) as f:
+            cands = json.load(f)
+        return [(c["batch"], c["idx"]) for c in cands]
+    if name == "all":
+        with open(INPUT_QUESTIONS_PATH) as f:
+            rows = json.load(f)
+        return [(r["batch"], r["idx"]) for r in rows]
+    raise ValueError(f"Unknown candidate set: {name!r}")
 
 
 async def main():
@@ -206,6 +212,20 @@ async def main():
         help=f"Comma-separated quote budgets to run (e.g. '0,2,4'). "
              f"Default: all of {QUOTE_BUDGETS_DEFAULT}.",
     )
+    parser.add_argument(
+        "--candidate-set", type=str, default="obfuscators",
+        choices=["obfuscators", "all"],
+        help="Question pool: 'obfuscators' = 50 strict gpt-4o-mini "
+             "candidates (default); 'all' = all 350 questions.",
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default="exp/quote_budget_4omini",
+        help="Where to write cache/, results.json.",
+    )
+    parser.add_argument(
+        "--summarize-only", action="store_true",
+        help="Skip generation; just walk cache and write results.json.",
+    )
     args = parser.parse_args()
 
     if args.quote_budgets.strip():
@@ -214,25 +234,36 @@ async def main():
     else:
         run_budgets = list(QUOTE_BUDGETS_DEFAULT)
 
-    openai.api_key = os.environ["OPENAI_API_KEY"]
+    # Allow --output-dir to override the default cache location
+    global OUT_DIR, CACHE_DIR
+    OUT_DIR = Path(args.output_dir)
+    CACHE_DIR = OUT_DIR / "cache"
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    if not args.summarize_only:
+        openai.api_key = os.environ["OPENAI_API_KEY"]
     qmap = load_question_map()
-    cand_keys = get_obfuscator_candidates()
-    print(f"Strict obfuscator candidates: {len(cand_keys)}")
+    cand_keys = get_candidate_set(args.candidate_set)
+    print(f"Candidate set ({args.candidate_set}): {len(cand_keys)} questions")
+    print(f"Output dir: {OUT_DIR}")
+    if args.summarize_only:
+        print("--summarize-only: skipping generation")
     print(f"Running budgets: {run_budgets}  (will summarize over all cached budgets)")
 
-    sem = asyncio.Semaphore(CONCURRENCY)
-    jobs = []
-    for n_quotes in run_budgets:
-        for batch, idx in cand_keys:
-            q = qmap[(batch, idx)]
-            swap = q["swap"]
-            jobs.append(run_question(sem, batch, idx, q, swap, n_quotes))
+    if not args.summarize_only:
+        sem = asyncio.Semaphore(CONCURRENCY)
+        jobs = []
+        for n_quotes in run_budgets:
+            for batch, idx in cand_keys:
+                q = qmap[(batch, idx)]
+                swap = q["swap"]
+                jobs.append(run_question(sem, batch, idx, q, swap, n_quotes))
 
-    print(f"{len(jobs)} (question, quote-budget) tasks queued")
-    BATCH = 40
-    for i in range(0, len(jobs), BATCH):
-        await asyncio.gather(*jobs[i:i+BATCH])
-        print(f"  done {min(i+BATCH, len(jobs))}/{len(jobs)}")
+        print(f"{len(jobs)} (question, quote-budget) tasks queued")
+        BATCH = 40
+        for i in range(0, len(jobs), BATCH):
+            await asyncio.gather(*jobs[i:i+BATCH])
+            print(f"  done {min(i+BATCH, len(jobs))}/{len(jobs)}")
 
     # Aggregate over ALL budgets present in cache (not just this run's budgets)
     print("\n--- Aggregating ---")
