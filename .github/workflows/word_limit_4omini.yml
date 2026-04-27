@@ -1,0 +1,80 @@
+name: word-limit gpt-4o-mini (50 obfuscators)
+
+# Sweeps the consultant's argument word limit on free_choice for the
+# 50 strict gpt-4o-mini obfuscator candidates and measures how fc_inc
+# shifts. Word limits configured in scripts/word_limit_4omini.py
+# (default {50, 100, 200, 400, 800}). gpt-4o-mini, n=8 per (question,
+# limit). Quote system unchanged.
+#
+# Required repo secret: OPENAI_API_KEY (or PERSONAL_OPEN_AI_KEY).
+
+on:
+  workflow_dispatch:
+    inputs:
+      word_limits:
+        description: "Word limits to run (comma-separated). Already-cached limits are skipped; summarize covers all cached limits."
+        type: choice
+        required: true
+        default: "50,100,200,400,800"
+        options:
+          - "50"
+          - "100"
+          - "200"
+          - "400"
+          - "800"
+          - "50,100,200,400,800"
+          - "100,200,400"
+      api_key:
+        description: "Which repo secret to use as OPENAI_API_KEY"
+        type: choice
+        required: true
+        default: "OPENAI_API_KEY"
+        options:
+          - OPENAI_API_KEY
+          - PERSONAL_OPEN_AI_KEY
+
+permissions:
+  contents: read
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: exp/word_limit_4omini/cache
+          key: word-limit-4omini-${{ github.run_id }}
+          restore-keys: |
+            word-limit-4omini-
+
+      - name: Run sweep
+        env:
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.word_limit_4omini --word-limits "${{ inputs.word_limits }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: exp/word_limit_4omini/cache
+          key: word-limit-4omini-${{ github.run_id }}
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: word-limit-results
+          path: |
+            exp/word_limit_4omini/results.json
+            exp/word_limit_4omini/cache/
+          retention-days: 30
