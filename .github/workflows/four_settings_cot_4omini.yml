@@ -1,0 +1,89 @@
+name: four-settings CoT gpt-4o-mini (350)
+
+# Variant of four_settings_4omini that adds:
+#   * a 200-word limit on <argument>
+#   * explicit non-sequential <thinking> guidance:
+#       (a) reasoning about what answer to provide and why
+#       (b) how to structure the explanation respecting the word limit
+#     Settings 2/3/4 receive both. Setting 1 splits them across the
+#     choice and explanation calls.
+#
+# Output dir is separate from four_settings_4omini so the two prompt
+# variants can be compared directly.
+#
+# Required repo secret: OPENAI_API_KEY (or PERSONAL_OPEN_AI_KEY).
+
+on:
+  workflow_dispatch:
+    inputs:
+      settings:
+        description: "Settings to run (comma-separated). Default: all 4."
+        type: choice
+        required: true
+        default: "1_aligned,2_correctness,3_both,4_strategic"
+        options:
+          - "1_aligned"
+          - "2_correctness"
+          - "3_both"
+          - "4_strategic"
+          - "1_aligned,2_correctness,3_both,4_strategic"
+          - "2_correctness,3_both,4_strategic"
+      api_key:
+        description: "Which repo secret to use as OPENAI_API_KEY"
+        type: choice
+        required: true
+        default: "OPENAI_API_KEY"
+        options:
+          - OPENAI_API_KEY
+          - PERSONAL_OPEN_AI_KEY
+
+permissions:
+  contents: read
+
+env:
+  OUTPUT_DIR: exp/four_settings_cot
+  CACHE_KEY_PREFIX: four-settings-cot-4omini
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}/cache
+          key: ${{ env.CACHE_KEY_PREFIX }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-
+
+      - name: Run experiment
+        env:
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.four_settings_cot_4omini \
+            --settings "${{ inputs.settings }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}/cache
+          key: ${{ env.CACHE_KEY_PREFIX }}-${{ github.run_id }}
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: four-settings-cot-results
+          path: |
+            ${{ env.OUTPUT_DIR }}/results.json
+            ${{ env.OUTPUT_DIR }}/cache/
+          retention-days: 30
