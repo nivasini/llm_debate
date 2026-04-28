@@ -1,0 +1,84 @@
+name: four-settings CoT v2 gpt-4o-mini (S3+S4 evidence-first)
+
+# Variant of four_settings_cot_4omini that changes only the <thinking>
+# guideline for Settings 3 and 4: the model is told to first reason
+# about evidence for each of the two answer options, then commit to a
+# choice, then plan how to structure its 200-word explanation.
+#
+# Default settings: 3_both,4_strategic. Output dir keeps the new
+# variant separate from v1 (exp/four_settings_cot_v2/).
+#
+# Required repo secret: OPENAI_API_KEY (or PERSONAL_OPEN_AI_KEY).
+
+on:
+  workflow_dispatch:
+    inputs:
+      settings:
+        description: "Settings to run (comma-separated). Default: 3,4."
+        type: choice
+        required: true
+        default: "3_both,4_strategic"
+        options:
+          - "3_both"
+          - "4_strategic"
+          - "3_both,4_strategic"
+          - "1_aligned,2_correctness,3_both,4_strategic"
+      api_key:
+        description: "Which repo secret to use as OPENAI_API_KEY"
+        type: choice
+        required: true
+        default: "OPENAI_API_KEY"
+        options:
+          - OPENAI_API_KEY
+          - PERSONAL_OPEN_AI_KEY
+
+permissions:
+  contents: read
+
+env:
+  OUTPUT_DIR: exp/four_settings_cot_v2
+  CACHE_KEY_PREFIX: four-settings-cot-v2-4omini
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}/cache
+          key: ${{ env.CACHE_KEY_PREFIX }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-
+
+      - name: Run experiment
+        env:
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.four_settings_cot_v2_4omini \
+            --settings "${{ inputs.settings }}"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}/cache
+          key: ${{ env.CACHE_KEY_PREFIX }}-${{ github.run_id }}
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: four-settings-cot-v2-results
+          path: |
+            ${{ env.OUTPUT_DIR }}/results.json
+            ${{ env.OUTPUT_DIR }}/cache/
+          retention-days: 30
