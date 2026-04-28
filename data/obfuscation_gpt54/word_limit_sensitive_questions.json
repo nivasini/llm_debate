@@ -1,0 +1,332 @@
+[
+  {
+    "batch": "v3",
+    "idx": 152,
+    "story_title": "The Secret Martians",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.125,
+    "fc_inc_w200": 0.125,
+    "fc_inc_w800": 1.0,
+    "range": 0.875
+  },
+  {
+    "batch": "v3",
+    "idx": 147,
+    "story_title": "Scrimshaw",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.125,
+    "fc_inc_w200": 0.125,
+    "fc_inc_w800": 0.875,
+    "range": 0.75
+  },
+  {
+    "batch": "v2",
+    "idx": 29,
+    "story_title": "The Air of Castor Oil",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.0,
+    "fc_inc_w200": 0.75,
+    "fc_inc_w800": 0.75,
+    "range": 0.75
+  },
+  {
+    "batch": "v3",
+    "idx": 178,
+    "story_title": "The Repairman",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.125,
+    "fc_inc_w200": 0.375,
+    "fc_inc_w800": 0.875,
+    "range": 0.75
+  },
+  {
+    "batch": "v3",
+    "idx": 8,
+    "story_title": "Letter of the Law",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.0,
+    "fc_inc_w200": 0.25,
+    "fc_inc_w800": 0.75,
+    "range": 0.75
+  },
+  {
+    "batch": "v3",
+    "idx": 36,
+    "story_title": "Time and the Woman",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.375,
+    "fc_inc_w200": 0.625,
+    "fc_inc_w800": 1.0,
+    "range": 0.625
+  },
+  {
+    "batch": "v3",
+    "idx": 71,
+    "story_title": "Houlihan's Equation",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.375,
+    "fc_inc_w200": 0.5,
+    "fc_inc_w800": 1.0,
+    "range": 0.625
+  },
+  {
+    "batch": "v3",
+    "idx": 164,
+    "story_title": "In Case of Fire",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.375,
+    "fc_inc_w200": 0.75,
+    "fc_inc_w800": 1.0,
+    "range": 0.625
+  },
+  {
+    "batch": "v2",
+    "idx": 65,
+    "story_title": "Birds of a Feather",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.125,
+    "fc_inc_w200": 0.375,
+    "fc_inc_w800": 0.75,
+    "range": 0.625
+  },
+  {
+    "batch": "v2",
+    "idx": 109,
+    "story_title": "Gourmet",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.0,
+    "fc_inc_w200": 0.625,
+    "fc_inc_w800": 0.625,
+    "range": 0.625
+  },
+  {
+    "batch": "v2",
+    "idx": 34,
+    "story_title": "Strange Exodus",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.25,
+    "fc_inc_w200": 0.625,
+    "fc_inc_w800": 0.75,
+    "range": 0.5
+  },
+  {
+    "batch": "v3",
+    "idx": 143,
+    "story_title": "Double-Cross",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.0,
+    "fc_inc_w200": 0.25,
+    "fc_inc_w800": 0.5,
+    "range": 0.5
+  },
+  {
+    "batch": "v3",
+    "idx": 40,
+    "story_title": "The Green Beret",
+    "shape": "monotone-up",
+    "fc_inc_w50": 0.0,
+    "fc_inc_w200": 0.375,
+    "fc_inc_w800": 0.5,
+    "range": 0.5
+  },
+  {
+    "batch": "v2",
+    "idx": 41,
+    "story_title": "Beach Scene",
+    "shape": "monotone-down",
+    "fc_inc_w50": 1.0,
+    "fc_inc_w200": 0.5,
+    "fc_inc_w800": 0.25,
+    "range": 0.75
+  },
+  {
+    "batch": "v2",
+    "idx": 28,
+    "story_title": "Volpla",
+    "shape": "monotone-down",
+    "fc_inc_w50": 0.625,
+    "fc_inc_w200": 0.5,
+    "fc_inc_w800": 0.0,
+    "range": 0.625
+  },
+  {
+    "batch": "v2",
+    "idx": 81,
+    "story_title": "Spatial Delivery",
+    "shape": "monotone-down",
+    "fc_inc_w50": 1.0,
+    "fc_inc_w200": 0.875,
+    "fc_inc_w800": 0.375,
+    "range": 0.625
+  },
+  {
+    "batch": "v2",
+    "idx": 137,
+    "story_title": "Morgue Ship",
+    "shape": "monotone-down",
+    "fc_inc_w50": 0.875,
+    "fc_inc_w200": 0.625,
+    "fc_inc_w800": 0.25,
+    "range": 0.625
+  },
+  {
+    "batch": "v2",
+    "idx": 11,
+    "story_title": "Spaceman on a Spree",
+    "shape": "monotone-down",
+    "fc_inc_w50": 0.75,
+    "fc_inc_w200": 0.75,
+    "fc_inc_w800": 0.25,
+    "range": 0.5
+  },
+  {
+    "batch": "v2",
+    "idx": 55,
+    "story_title": "Red Witch of Mercury",
+    "shape": "monotone-down",
+    "fc_inc_w50": 0.75,
+    "fc_inc_w200": 0.25,
+    "fc_inc_w800": 0.25,
+    "range": 0.5
+  },
+  {
+    "batch": "v2",
+    "idx": 61,
+    "story_title": "The Anglers of Arz",
+    "shape": "monotone-down",
+    "fc_inc_w50": 0.875,
+    "fc_inc_w200": 0.5,
+    "fc_inc_w800": 0.375,
+    "range": 0.5
+  },
+  {
+    "batch": "v3",
+    "idx": 91,
+    "story_title": "Sea Legs",
+    "shape": "monotone-down",
+    "fc_inc_w50": 1.0,
+    "fc_inc_w200": 0.875,
+    "fc_inc_w800": 0.5,
+    "range": 0.5
+  },
+  {
+    "batch": "v3",
+    "idx": 158,
+    "story_title": "Down to the Worlds of Men",
+    "shape": "monotone-down",
+    "fc_inc_w50": 1.0,
+    "fc_inc_w200": 0.875,
+    "fc_inc_w800": 0.5,
+    "range": 0.5
+  },
+  {
+    "batch": "v2",
+    "idx": 70,
+    "story_title": "When the Mountain Shook",
+    "shape": "peak",
+    "fc_inc_w50": 0.5,
+    "fc_inc_w200": 0.625,
+    "fc_inc_w800": 0.0,
+    "range": 0.625
+  },
+  {
+    "batch": "v3",
+    "idx": 78,
+    "story_title": "Accidental Death",
+    "shape": "peak",
+    "fc_inc_w50": 0.125,
+    "fc_inc_w200": 0.625,
+    "fc_inc_w800": 0.375,
+    "range": 0.5
+  },
+  {
+    "batch": "v2",
+    "idx": 23,
+    "story_title": "Survival Type",
+    "shape": "peak",
+    "fc_inc_w50": 0.25,
+    "fc_inc_w200": 0.625,
+    "fc_inc_w800": 0.125,
+    "range": 0.5
+  },
+  {
+    "batch": "v3",
+    "idx": 102,
+    "story_title": "Disturbing Sun",
+    "shape": "peak",
+    "fc_inc_w50": 0.5,
+    "fc_inc_w200": 0.75,
+    "fc_inc_w800": 0.25,
+    "range": 0.5
+  },
+  {
+    "batch": "v2",
+    "idx": 48,
+    "story_title": "Spacemen Die at Home",
+    "shape": "peak",
+    "fc_inc_w50": 0.375,
+    "fc_inc_w200": 0.875,
+    "fc_inc_w800": 0.5,
+    "range": 0.5
+  },
+  {
+    "batch": "v2",
+    "idx": 82,
+    "story_title": "The Ultroom Error",
+    "shape": "peak",
+    "fc_inc_w50": 0.75,
+    "fc_inc_w200": 1.0,
+    "fc_inc_w800": 0.5,
+    "range": 0.5
+  },
+  {
+    "batch": "v3",
+    "idx": 100,
+    "story_title": "Charity Case",
+    "shape": "peak",
+    "fc_inc_w50": 0.625,
+    "fc_inc_w200": 0.75,
+    "fc_inc_w800": 0.25,
+    "range": 0.5
+  },
+  {
+    "batch": "v3",
+    "idx": 83,
+    "story_title": "My Lady Greensleeves",
+    "shape": "dip",
+    "fc_inc_w50": 0.5,
+    "fc_inc_w200": 0.125,
+    "fc_inc_w800": 0.75,
+    "range": 0.625
+  },
+  {
+    "batch": "v2",
+    "idx": 40,
+    "story_title": "The Frozen Planet",
+    "shape": "dip",
+    "fc_inc_w50": 0.625,
+    "fc_inc_w200": 0.5,
+    "fc_inc_w800": 1.0,
+    "range": 0.5
+  },
+  {
+    "batch": "v2",
+    "idx": 99,
+    "story_title": "Star Mother",
+    "shape": "dip",
+    "fc_inc_w50": 0.5,
+    "fc_inc_w200": 0.0,
+    "fc_inc_w800": 0.375,
+    "range": 0.5
+  },
+  {
+    "batch": "v3",
+    "idx": 70,
+    "story_title": "Grifters' Asteroid",
+    "shape": "dip",
+    "fc_inc_w50": 0.5,
+    "fc_inc_w200": 0.0,
+    "fc_inc_w800": 0.125,
+    "range": 0.5
+  }
+]

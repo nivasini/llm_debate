@@ -1,0 +1,95 @@
+name: word-limit gpt-4o-mini (33 sensitive Qs, n=30)
+
+# Extends the existing 350-question word-limit sweep to n=30 samples
+# per (question, limit) for the 33 high-range "sensitive" subset
+# identified in
+#   data/obfuscation_gpt54/word_limit_sensitive_questions.json
+# (mean fc_inc range across {50, 200, 800} >= 50% on the n=8 sweep).
+#
+# Existing 8 samples per (question, limit) from the 350 sweep are
+# loaded from the actions/cache and topped up with 22 more, so each
+# (question, limit) ends with 30 samples total.
+#
+# Output dir: exp/word_limit_4omini_full/  (same as the 350 sweep —
+# we share its cache so we don't repeat the first 8). Cache key prefix
+# is shared with the 350 sweep too.
+#
+# 33 questions × 3 word limits × 22 new samples = 2178 gpt-4o-mini
+# calls, ~$0.10-0.30, ~5-10 min.
+#
+# Required repo secret: OPENAI_API_KEY (or PERSONAL_OPEN_AI_KEY).
+
+on:
+  workflow_dispatch:
+    inputs:
+      total_samples:
+        description: "Target total samples per (question, limit)"
+        type: choice
+        required: true
+        default: "30"
+        options:
+          - "16"
+          - "30"
+          - "50"
+      api_key:
+        description: "Which repo secret to use as OPENAI_API_KEY"
+        type: choice
+        required: true
+        default: "OPENAI_API_KEY"
+        options:
+          - OPENAI_API_KEY
+          - PERSONAL_OPEN_AI_KEY
+
+permissions:
+  contents: read
+
+env:
+  OUTPUT_DIR: exp/word_limit_4omini_full
+  CACHE_KEY_PREFIX: word-limit-4omini-full
+
+jobs:
+  topup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-obfuscation.txt
+
+      - name: Restore cache from prior 350-Q sweep
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}/cache
+          key: ${{ env.CACHE_KEY_PREFIX }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-
+
+      - name: Top up sensitive Qs to n=${{ inputs.total_samples }}
+        env:
+          OPENAI_API_KEY: ${{ inputs.api_key == 'PERSONAL_OPEN_AI_KEY' && secrets.PERSONAL_OPEN_AI_KEY || secrets.OPENAI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python -m scripts.word_limit_4omini \
+            --candidate-set sensitive \
+            --word-limits "50,200,800" \
+            --total-samples "${{ inputs.total_samples }}" \
+            --output-dir "$OUTPUT_DIR"
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}/cache
+          key: ${{ env.CACHE_KEY_PREFIX }}-${{ github.run_id }}
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: word-limit-sensitive-results
+          path: |
+            ${{ env.OUTPUT_DIR }}/results.json
+            ${{ env.OUTPUT_DIR }}/cache/
+          retention-days: 30

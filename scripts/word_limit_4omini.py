@@ -49,6 +49,7 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 CANDIDATES_PATH = Path("data/obfuscation_gpt54/obfuscator_candidates_4omini.json")
 INPUT_QUESTIONS_PATH = Path("data/obfuscation_gpt54/input_questions.json")
+SENSITIVE_PATH = Path("data/obfuscation_gpt54/word_limit_sensitive_questions.json")
 
 
 def word_limit_clause(n):
@@ -132,13 +133,15 @@ async def call_model(messages, n=N_SAMPLES):
     return out
 
 
-async def run_question(sem, batch, idx, q, swap, n_words):
+async def run_question(sem, batch, idx, q, swap, n_words, target_n=N_SAMPLES):
     cache_path = CACHE_DIR / f"{batch}_{idx}_w{n_words}.json"
+
+    existing = {}
     if cache_path.exists():
         with open(cache_path) as f:
-            cached = json.load(f)
-        if cached.get("candidates"):
-            return cached
+            existing = json.load(f)
+        if existing.get("candidates") and len(existing["candidates"]) >= target_n:
+            return existing
 
     correct = q["correct_answer"]
     incorrect = q["incorrect_answer"]
@@ -150,17 +153,21 @@ async def run_question(sem, batch, idx, q, swap, n_words):
         answer_a, answer_b = incorrect, correct
         correct_pos = "B"
 
-    messages = build_messages(q["question"], answer_a, answer_b, story, n_words)
-    async with sem:
-        try:
-            cands = await call_model(messages, n=N_SAMPLES)
-            error = None
-        except Exception as e:
-            print(f"  !! {batch}/{idx} w={n_words}: {type(e).__name__}: {str(e)[:200]}",
-                  flush=True)
-            cands = []
-            error = f"{type(e).__name__}: {str(e)[:200]}"
+    n_existing = len(existing.get("candidates") or [])
+    n_new = max(0, target_n - n_existing)
+    new_cands = []
+    error = None
+    if n_new > 0:
+        messages = build_messages(q["question"], answer_a, answer_b, story, n_words)
+        async with sem:
+            try:
+                new_cands = await call_model(messages, n=n_new)
+            except Exception as e:
+                print(f"  !! {batch}/{idx} w={n_words}: {type(e).__name__}: {str(e)[:200]}",
+                      flush=True)
+                error = f"{type(e).__name__}: {str(e)[:200]}"
 
+    cands = (existing.get("candidates") or []) + new_cands
     choices = [extract_choice(c) for c in cands]
     sides = [
         "unknown" if ch is None else
@@ -176,6 +183,7 @@ async def run_question(sem, batch, idx, q, swap, n_words):
         "question": q["question"],
         "swap": swap, "correct_pos": correct_pos,
         "n_words_requested": n_words,
+        "n_samples": len(cands),
         "candidates": cands,
         "choices": choices,
         "sides": sides,
@@ -203,6 +211,10 @@ def get_candidate_set(name):
         with open(INPUT_QUESTIONS_PATH) as f:
             rows = json.load(f)
         return [(r["batch"], r["idx"]) for r in rows]
+    if name == "sensitive":
+        with open(SENSITIVE_PATH) as f:
+            rows = json.load(f)
+        return [(r["batch"], r["idx"]) for r in rows]
     raise ValueError(f"Unknown candidate set: {name!r}")
 
 
@@ -215,8 +227,15 @@ async def main():
     )
     parser.add_argument(
         "--candidate-set", type=str, default="obfuscators",
-        choices=["obfuscators", "all"],
-        help="Question pool: 'obfuscators' (50, default) or 'all' (350).",
+        choices=["obfuscators", "all", "sensitive"],
+        help="Question pool: 'obfuscators' (50, default), 'all' (350), "
+             "or 'sensitive' (33 high-range word-limit subset).",
+    )
+    parser.add_argument(
+        "--total-samples", type=int, default=N_SAMPLES,
+        help=f"Target total samples per (question, limit). Default {N_SAMPLES}. "
+             f"If existing cache has fewer, additional samples are generated "
+             f"and appended.",
     )
     parser.add_argument(
         "--output-dir", type=str, default="exp/word_limit_4omini",
@@ -254,7 +273,8 @@ async def main():
             for batch, idx in cand_keys:
                 q = qmap[(batch, idx)]
                 swap = q["swap"]
-                jobs.append(run_question(sem, batch, idx, q, swap, n_words))
+                jobs.append(run_question(sem, batch, idx, q, swap, n_words,
+                                         target_n=args.total_samples))
         print(f"{len(jobs)} (question, word-limit) tasks queued")
         BATCH = 40
         for i in range(0, len(jobs), BATCH):
