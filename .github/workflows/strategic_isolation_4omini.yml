@@ -1,15 +1,17 @@
-name: strategic isolation gpt-4o-mini (precommit/motivated/tone)
+name: strategic isolation gpt-4o-mini
 
-# Three single-element variants of the 4_strategic prompt to isolate
-# which structural feature drove the high fc_inc (~60%) of the old
-# free_choice consultant vs the new 4_strategic prompt (~24%):
+# Variants of the 4_strategic prompt to isolate which structural feature
+# drove the high fc_inc (~60%) of the old free_choice consultant vs the
+# new 4_strategic prompt (~24%):
 #
 #   precommit  : add the old user1 turn that forces an answer
 #                commitment BEFORE seeing CoT scaffolding.
 #   motivated  : swap the THINK_BOTH (a) clause for the old wording
 #                "which answer you can most convincingly argue for".
-#   tone       : append "scholarly assertive" + cautious-quote advice
-#                (control — expected small effect).
+#   tone       : append "scholarly assertive" + cautious-quote advice.
+#   delicense  : strip the "regardless of which is actually correct"
+#                clause; revert the goal sentence to the old wording.
+#   combined   : precommit + motivated + tone all at once.
 #
 # Output dir: exp/strategic_isolation/<variant>/cache/
 #
@@ -19,16 +21,19 @@ on:
   workflow_dispatch:
     inputs:
       variants:
-        description: "Variants to run (comma-separated). Default: all 3."
+        description: "Variants to run (comma-separated)."
         type: choice
         required: true
-        default: "precommit,motivated,tone"
+        default: "delicense,combined"
         options:
           - "precommit"
           - "motivated"
           - "tone"
-          - "precommit,motivated"
+          - "delicense"
+          - "combined"
+          - "delicense,combined"
           - "precommit,motivated,tone"
+          - "precommit,motivated,tone,delicense,combined"
       api_key:
         description: "Which repo secret to use as OPENAI_API_KEY"
         type: choice
@@ -89,4 +94,6 @@ jobs:
             ${{ env.OUTPUT_DIR }}/precommit/cache/
             ${{ env.OUTPUT_DIR }}/motivated/cache/
             ${{ env.OUTPUT_DIR }}/tone/cache/
+            ${{ env.OUTPUT_DIR }}/delicense/cache/
+            ${{ env.OUTPUT_DIR }}/combined/cache/
           retention-days: 30
